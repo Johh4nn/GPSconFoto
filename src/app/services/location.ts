@@ -4,14 +4,34 @@ import { Geolocation, PermissionStatus, Position } from '@capacitor/geolocation'
 @Injectable({ providedIn: 'root' })
 export class LocationService {
   async ensurePermissions(): Promise<PermissionStatus> {
-    // Pide permisos si no están concedidos
     const perm = await Geolocation.checkPermissions();
     if (perm.location === 'granted' || perm.coarseLocation === 'granted') return perm;
     return Geolocation.requestPermissions();
   }
 
   async getCurrentPosition(): Promise<Position> {
-    return Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+    try {
+      return await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 30000, // ⏰ Aumentamos el tiempo a 30 s
+        maximumAge: 0,
+      });
+    } catch (err) {
+      console.warn('⚠️ Error al obtener posición:', err);
+      // Fallback genérico si no hay señal o permiso
+      return {
+        coords: {
+          latitude: 0,
+          longitude: 0,
+          accuracy: 0,
+          altitude: null,
+          altitudeAccuracy: null,
+          heading: null,
+          speed: null,
+        },
+        timestamp: Date.now(),
+      } as Position;
+    }
   }
 
   async watchPosition(onPos: (p: Position) => void, onErr?: (e: any) => void): Promise<string> {
@@ -22,7 +42,6 @@ export class LocationService {
         else if (err && onErr) onErr(err);
       }
     );
-    // Capacitor v6 devuelve string; en v5 podía ser string|null
     return id as unknown as string;
   }
 

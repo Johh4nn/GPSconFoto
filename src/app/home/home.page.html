@@ -1,10 +1,12 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Mi Ubicación GPS (Standalone)</ion-title>
+    <ion-title>Mi Ubicación + Fotos</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
+
+  <!-- Muestra coordenadas -->
   <ion-card *ngIf="latitude() !== null && longitude() !== null">
     <ion-card-header>
       <ion-card-title>Coordenadas actuales</ion-card-title>
@@ -17,6 +19,7 @@
 
   <p *ngIf="errorMsg()">{{ errorMsg() }}</p>
 
+  <!-- Botones -->
   <ion-button expand="block" (click)="obtenerUbicacionActual()">
     Obtener ubicación actual
   </ion-button>
@@ -28,4 +31,43 @@
   <ion-button expand="block" color="medium" (click)="detenerSeguimiento()" [disabled]="watchId === null">
     Detener seguimiento
   </ion-button>
+
+  <ion-button expand="block" color="success" (click)="tomarFoto()">
+    Tomar foto y guardar ubicación
+  </ion-button>
+
+  <ion-button expand="block" color="tertiary" (click)="verHistorial()">
+    Ver ubicaciones guardadas
+  </ion-button>
+
+  <ion-button expand="block" color="warning" (click)="descargarHistorial()">
+    Descargar ubicaciones.txt
+  </ion-button>
+
+  <!-- Estado -->
+  <p *ngIf="status()">{{ status() }}</p>
+
+  <!-- Mostrar última foto -->
+  <ion-card *ngIf="latestPhoto()">
+    <ion-card-header>
+      <ion-card-title>Última foto tomada</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <img [src]="latestPhoto()?.imageBase64" style="width: 100%; height: auto;" />
+      <p><strong>Latitud:</strong> {{ latestPhoto()?.latitude }}</p>
+      <p><strong>Longitud:</strong> {{ latestPhoto()?.longitude }}</p>
+      <a [href]="latestPhoto()?.mapsLink" target="_blank">Ver en Google Maps</a>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Mostrar historial leído -->
+  <ion-card *ngIf="historial()">
+    <ion-card-header>
+      <ion-card-title>Contenido de ubicaciones.txt</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <pre>{{ historial() }}</pre>
+    </ion-card-content>
+  </ion-card>
+
 </ion-content>
